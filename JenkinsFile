@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    tools {
+        maven 'Maven-3.8.5' // Replace with your configured Maven version
+        jdk 'JDK-11'        // Replace with your configured JDK version
+    }
+     environment {
+        // Add any required environment variables here
+        SPRING_PROFILES_ACTIVE = 'dev' // Example: Set the active Spring profile
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code from SCM
+                git branch: 'main', url: 'https://github.com/Tayyabsami1/DevOps_Learning_Repo.git'
+            }
+        }
+        stage('Compile') {
+            steps {
+                // Compile the project
+                sh './mvn clean compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                // Run unit tests
+                sh './mvn test'
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            junit '**/target/surefire-reports/TEST-*.xml'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
